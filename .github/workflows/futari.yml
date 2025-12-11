@@ -1,0 +1,46 @@
+name: pw2
+on:
+  workflow_dispatch:
+    inputs:
+      method:
+        description: 'HTTP Method'
+        required: true
+        default: 'GET'
+        type: string
+      target:
+        description: 'Target URL'
+        required: true
+        type: string
+      time:
+        description: 'Time seconds'
+        required: true
+        type: number
+        default: "300"
+      threads:
+        description: 'Thread count per job'
+        required: true
+        type: number
+        default: "10"
+      rate:
+        description: 'Rate limit per thread'
+        required: true
+        type: number
+        default: "30"
+
+jobs:
+  att:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        job_number: [1, 2]
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - run: npm install hpack chalk
+    
+    - run: |
+        node bp.js ${{ github.event.inputs.method }} ${{ github.event.inputs.target }} ${{ github.event.inputs.time }} ${{ github.event.inputs.threads }} ${{ github.event.inputs.rate }} proxy.txt --debug
